@@ -3,8 +3,14 @@ const assert = require('assert');
 const AuthorChar = require('../models/authormodel');
 
 describe('it consists of nested schema',(done)=>{
+    let apj;
+    beforeEach((done)=>{
+        mongoose.connection.collections.authorchars.drop(()=>{
+            done();
+        });
+    });
     it('creates nested schema and saves to database',()=>{
-        let apj = new AuthorChar({
+         apj = new AuthorChar({
             name:'APJ Abdul Kalam',
             age:80,
             books:[{title:'Wings of fire',pages:250}]
@@ -19,7 +25,11 @@ describe('it consists of nested schema',(done)=>{
     it('adds a book to existing author',()=>{
         AuthorChar.findOne({name:'APJ Abdul Kalam'}).then((res)=>{
             res.books.push({title:'Vision 20-20',pages:500});
-            done();
+            res.save().then((res)=>{
+                assert(res.books.length === 2);
+                done();
+            });
+           
         });
     });
 });
